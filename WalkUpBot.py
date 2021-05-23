@@ -7,7 +7,7 @@ Created on Sat May 22 13:47:33 2021
 """
 
 
-import discord, time
+import discord, time, sys, os, json, random
 from discord.ext import tasks
 
 
@@ -18,7 +18,7 @@ class Client(discord.Client):
         
         self.previous_members = self.get_channel_members()
         self.previous_size = self.check_party_size()
-        
+        # discord.opus.load_opus()
         self.my_background_task.start() 
         
     @tasks.loop(seconds=1) # task runs every 60 seconds
@@ -41,15 +41,19 @@ class Client(discord.Client):
         return len(self.get_channel_members())
     
     def find_sound(self, name):
-        sounds = {
-            "Land Of Schmucks": "Schmuck.mp3"
-            }
-        return sounds[name]
+        with open("data.json", "r") as f:
+            sounds = json.load(f)
+        choice = random.randint(0, len(sounds[name]["intro"])-1 )
+        return sounds[name]["intro"][choice]
         
     async def play_sound(self, channel, member):
         # print(member.name)
-        member_sound = self.find_sound(member.name)
-        sound = discord.FFmpegPCMAudio(member_sound, executable="ffmpeg.exe")
+        if sys.platform == "darwin":
+            execute = os.getcwd() + "//" + os.listdir()[0]
+        else:
+            execute = "ffmpeg.exe"
+        member_sound = "sounds//" + self.find_sound(member.name)
+        sound = discord.FFmpegPCMAudio(member_sound, executable=execute)
         if self.user not in channel.members:
             voice = await channel.connect()
         print("Playing Sound")
