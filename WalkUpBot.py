@@ -24,6 +24,7 @@ class Client(discord.Client):
     @tasks.loop(seconds=1) # task runs every 60 seconds
     async def my_background_task(self):
         channel = self.guilds[0].voice_channels[0]
+        # print(self.guilds[0].voice_channels[0])
         current_size = self.check_party_size()
         print("PARTY SIZE GREATER THAN BEFORE: {}".format(current_size > self.previous_size))
         if current_size > self.previous_size:
@@ -43,25 +44,29 @@ class Client(discord.Client):
     def find_sound(self, name):
         with open("data.json", "r") as f:
             sounds = json.load(f)
-        choice = random.randint(0, len(sounds[name]["intro"])-1 )
-        return sounds[name]["intro"][choice]
+        if name not in list(sounds.keys()):
+            out = None
+        else:
+            choice = random.randint(0, len(sounds[name]["intro"])-1 )
+            out = sounds[name]["intro"][choice]
+        return out
         
     async def play_sound(self, channel, member):
-        # print(member.name)
         if sys.platform == "darwin":
             execute = os.getcwd() + "//" + os.listdir()[0]
         else:
             execute = "ffmpeg.exe"
-        member_sound = "sounds//" + self.find_sound(member.name)
-        sound = discord.FFmpegPCMAudio(member_sound, executable=execute)
-        if self.user not in channel.members:
-            voice = await channel.connect()
-        print("Playing Sound")
-        voice.play(sound)
-        print("Finished Playing Sound")
-        while voice.is_playing():
-            time.sleep(0.2)
-        await voice.disconnect()       
+        member_sound = "sounds//" + self.find_sound(member.name)        
+        if member_sound != None:
+            sound = discord.FFmpegPCMAudio(member_sound, executable=execute)
+            if self.user not in channel.members:
+                voice = await channel.connect()
+                print("Playing Sound")
+                voice.play(sound)
+                print("Finished Playing Sound")
+                while voice.is_playing():
+                    time.sleep(0.2)
+                await voice.disconnect()       
     
 def load_token():
     with open("Secrets.txt", "r") as f:
