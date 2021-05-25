@@ -20,9 +20,6 @@ class Client(discord.Client):
         # discord.opus.load_opus()
         self.my_background_task.start() 
         
-    async def on_message(self):
-        
-        
     @tasks.loop(seconds=1) # task runs every 60 seconds
     async def my_background_task(self):
         channel = self.guilds[0].voice_channels[0]
