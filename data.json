@@ -1,7 +1,7 @@
 {
 	"Land Of Schmucks":
 	{
-		"intro": ["Schmuck.mp3", "Just_Like_The_Gays.mp3"]
+		"intro": ["Schmuck.mp3", "PureVanilla.mp3"]
 	},
 	"KyleBaer":
 	{
@@ -9,19 +9,19 @@
 	},
 	"RobbieRob":
 	{
-		"intro": ["Taking_a_shit.mp3"]
+		"intro": ["Taking_a_shit.mp3", "you_got_me_a_hat.mp3"]
 	},
 	"IIMilanII":
 	{
-		"intro": ["indian_moonlight.mp3"]
+		"intro": ["indian_moonlight.mp3", "MansNotHot.mp3"]
 	},
 	"JamesTheHorn":
 	{
-		"intro": ["YouSeeThisWatch.mp3"]
+		"intro": ["YouSeeThisWatch.mp3", "KrabbyIntro.mp3"]
 	},
 	"JLouton1995":
 	{
-		"intro": ["spare_cock.mp3"]
+		"intro": ["spare_cock.mp3", "NiceCock.mp3"]
 	},
 	"ClayDoh22":
 	{
@@ -33,15 +33,11 @@
 	},
 	"LienMi":
 	{
-		"intro": ["can_play_basketball.mp3"]
+		"intro": ["can_play_basketball.mp3", "ErenJaeger.mp3"]
 	},
 	"The quinn":
 	{
-		"intro": ["small_dick.mp3"]
-	},
-	"Pberry":
-	{
-		"intro": [""]
+		"intro": ["small_dick.mp3", "this_guy_stinks.mp3"]
 	},
 	"DinglePanda":
 	{

@@ -10,7 +10,6 @@ Created on Sat May 22 13:47:33 2021
 import discord, time, sys, os, json, random
 from discord.ext import tasks
 
-
 class Client(discord.Client):
     
     async def on_ready(self):
@@ -21,6 +20,9 @@ class Client(discord.Client):
         # discord.opus.load_opus()
         self.my_background_task.start() 
         
+    async def on_message(self):
+        
+        
     @tasks.loop(seconds=1) # task runs every 60 seconds
     async def my_background_task(self):
         channel = self.guilds[0].voice_channels[0]
@@ -30,7 +32,7 @@ class Client(discord.Client):
         if current_size > self.previous_size:
             members = self.get_channel_members()
             diff = list(set(members) - set(self.previous_members)) + list(set(self.previous_members) - set(members))
-            await self.play_sound(channel, diff[0])
+            [await self.play_sound(channel, person) for person in diff]
         self.previous_members = self.get_channel_members()
         self.previous_size = len(self.previous_members)             
     
