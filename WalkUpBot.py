@@ -32,14 +32,15 @@ class Client(discord.Client):
                             level = logging.INFO)    
         logging.getLogger('discord').setLevel(logging.WARNING)
         self.log = logging.getLogger("DiscordBotLogger")
-        self.log.info("Listening to {channel} in {guild}".format(guild = self.guilds[self.guild_num].name, channel = self.guilds[0].voice_channels[0].name))
+        self.log.info("Program started running")
+        self.log.info("Listening to {channel} in {guild}".format(guild = self.guilds[0].name, channel = self.guilds[0].voice_channels[0].name))
     
     @tasks.loop(seconds=1) # task runs every 60 seconds
     async def my_background_task(self):
-        channel = self.guilds[self.guild_num].voice_channels[0]
+        channel = self.guilds[0].voice_channels[0]
         # print(channel)
         current_size = self.check_party_size()
-        print("PARTY SIZE GREATER THAN BEFORE: {}".format(current_size > self.previous_size))
+        # print("PARTY SIZE GREATER THAN BEFORE: {}".format(current_size > self.previous_size))
         if current_size > self.previous_size:
             members = self.get_channel_members()
             diff = list(set(members) - set(self.previous_members)) + list(set(self.previous_members) - set(members))
@@ -49,7 +50,7 @@ class Client(discord.Client):
         self.previous_size = len(self.previous_members)             
     
     def get_channel_members(self):
-        channel = self.guilds[self.guild_num].voice_channels[0]
+        channel = self.guilds[0].voice_channels[0]
         return [i for i in channel.members if not i.bot]
         
     def check_party_size(self):
@@ -76,7 +77,6 @@ class Client(discord.Client):
             if self.user not in channel.members:
                 voice = await channel.connect()
                 self.log.info("{member} joined the party, {sound} is playing".format(member = member.name, sound = member_sound))
-                print("HERE")
                 voice.play(sound)
                 
                 while voice.is_playing():
