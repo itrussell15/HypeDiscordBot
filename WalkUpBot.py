@@ -19,7 +19,8 @@ class Client(discord.Client):
         self.set_up_logging()
         self.previous_members = self.get_channel_members()
         self.previous_size = self.check_party_size()
-        self.my_background_task.start() 
+        self.my_background_task.start()
+        self.guild_num = 0
     
     def set_up_logging(self):
         # self.log = logging.getLogger('discord')
@@ -29,24 +30,26 @@ class Client(discord.Client):
                             format = log_format,
                             filemode = "a",
                             level = logging.INFO)    
-
-        logging.info("Listening to {channel} in {guild}".format(guild = self.guilds[1].name, channel = self.guilds[1].voice_channels[0].name))
+        logging.getLogger('discord').setLevel(logging.WARNING)
+        self.log = logging.getLogger("DiscordBotLogger")
+        self.log.info("Listening to {channel} in {guild}".format(guild = self.guilds[self.guild_num].name, channel = self.guilds[0].voice_channels[0].name))
     
     @tasks.loop(seconds=1) # task runs every 60 seconds
     async def my_background_task(self):
-        channel = self.guilds[1].voice_channels[0]
+        channel = self.guilds[self.guild_num].voice_channels[0]
         # print(channel)
         current_size = self.check_party_size()
         print("PARTY SIZE GREATER THAN BEFORE: {}".format(current_size > self.previous_size))
         if current_size > self.previous_size:
             members = self.get_channel_members()
             diff = list(set(members) - set(self.previous_members)) + list(set(self.previous_members) - set(members))
+            self.log.info("{} joined the voice chat".format(" ".join([i.name for i in diff])))
             [await self.play_sound(channel, person) for person in diff]
         self.previous_members = self.get_channel_members()
         self.previous_size = len(self.previous_members)             
     
     def get_channel_members(self):
-        channel = self.guilds[1].voice_channels[0]
+        channel = self.guilds[self.guild_num].voice_channels[0]
         return [i for i in channel.members if not i.bot]
         
     def check_party_size(self):
@@ -72,43 +75,13 @@ class Client(discord.Client):
             sound = discord.FFmpegPCMAudio("sounds//" + member_sound, executable=execute)
             if self.user not in channel.members:
                 voice = await channel.connect()
-                logging.info("{member} joined the party, {sound} is playing".format(member = member.name, sound = member_sound))
+                self.log.info("{member} joined the party, {sound} is playing".format(member = member.name, sound = member_sound))
                 print("HERE")
                 voice.play(sound)
                 
                 while voice.is_playing():
                     time.sleep(0.2)
                 await voice.disconnect()     
-                
-    class Logging:
-        
-        def __init__(self, path = "log.txt"):
-            self.path = path
-            if path not in os.listdir(os.getcwd()):
-                self.__create_file()
-            # self.log = self.write_to_log(path)
-        
-        def formatted_time(self):
-            format_time = lambda x: x.strftime("%H:%M:%S %m-%d-%Y")
-            return format_time(datetime.datetime.now())
-        
-        #Create file method, to be used only if needed.
-        def __create_file(self):
-            with open(self.path, "w") as f:
-                f.close()   
-            self.write_to_log("Beginning of Log")
-        
-        def write_to_log(self, message, to_print = False):
-            if self.path not in os.listdir(os.getcwd()):
-                self.__create_file()
-                
-            if to_print:
-                print(message)
-                
-            with open(os.getcwd() + "\{}".format(self.path), "a") as f:
-                f.write("\n{date} --> {message}".format(date = self.formatted_time(), message = message))
-                f.close() 
-            
     
 def load_token():
     with open("Secrets.txt", "r") as f:
