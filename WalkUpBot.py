@@ -70,7 +70,7 @@ class Client(discord.Client):
         if sys.platform == "darwin":
             execute = os.getcwd() + "//" + os.listdir()[0]
         else:
-            execute = "ffmpeg.exe"
+            execute = "ffmpeg"
         member_sound = self.find_sound(member.name)        
         if member_sound != None:
             sound = discord.FFmpegPCMAudio("sounds//" + member_sound, executable=execute)
