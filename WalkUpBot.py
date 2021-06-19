@@ -85,10 +85,10 @@ class Client(discord.Client):
     
     async def on_message(self, msg):
         
-        if msg.auther == client.user:
+        if msg.author == client.user:
             return
         
-        if len(msg.attachments) > 0 and msg.channel == discord.ChannelType.private:
+        if len(msg.attachments) >= 1 and msg.channel.type == discord.ChannelType.private:
             for i in msg.attachments:
                 if i.content_type == "audio/mpeg":
                     with open(os.getcwd() + "\\data.json", "r") as f:
@@ -101,7 +101,7 @@ class Client(discord.Client):
                     with open("data.json", "w") as f:
                         json.dump(data, f, indent = 2)
                     await msg.author.dm_channel.send("{} was added to your sounds!".format(i.filename))
-                    guilds = ", ".join(i.name for i in msg.auther.mutual_guilds)
+                    guilds = ", ".join(i.name for i in msg.author.mutual_guilds)
                     self.log.info("{member} in {guilds} added {sound} to to their sounds!"
                                   .format(member = msg.author, sound = i.filename, guilds = guilds))
                     
