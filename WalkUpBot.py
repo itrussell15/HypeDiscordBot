@@ -83,6 +83,28 @@ class Client(discord.Client):
                     time.sleep(0.2)
                 await voice.disconnect()     
     
+    def on_message(self, msg):
+        
+        if msg.auther == client.user:
+            return
+        
+        if len(msg.attachments) > 0 and msg.channel == discord.ChannelType.private:
+            for i in msg.attachments:
+                if i.content_type == "audio/mpeg":
+                    with open(os.getcwd() + "\\data.json", "r") as f:
+                        data = json.load(f)
+                    await i.save(os.getcwd() + "\\sounds\\{}".format(i.filename))
+                    if msg.author.name in list(data.keys()):
+                        data[msg.author.name]["intro"].append(i.filename)
+                    else:
+                        data.update({msg.author.name: {"intro": [i.filename]}})
+                    with open("data.json", "w") as f:
+                        json.dump(data, f, indent = 2)
+                    await msg.author.dm_channel.send("{} was added to your sounds!".format(i.filename))
+                    guilds = ", ".join(i.name for i in msg.auther.mutual_guilds)
+                    self.log.info("{member} in {guilds} added {sound} to to their sounds!"
+                                  .format(member = msg.author, sound = i.filename, guilds = guilds))
+                    
 def load_token():
     with open("Secrets.txt", "r") as f:
         file = f.readlines()[0]
