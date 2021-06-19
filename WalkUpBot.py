@@ -83,7 +83,7 @@ class Client(discord.Client):
                     time.sleep(0.2)
                 await voice.disconnect()     
     
-    def on_message(self, msg):
+    async def on_message(self, msg):
         
         if msg.auther == client.user:
             return
