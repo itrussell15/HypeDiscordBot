@@ -41,8 +41,9 @@ class Client(discord.Client):
         # print(channel)
         current_size = self.check_party_size()
         # print("PARTY SIZE GREATER THAN BEFORE: {}".format(current_size > self.previous_size))
+        members = self.get_channel_members()
         if current_size > self.previous_size:
-            members = self.get_channel_members()
+            
             diff = list(set(members) - set(self.previous_members)) + list(set(self.previous_members) - set(members))
             self.log.info("{} joined the voice chat".format(" ".join([i.name for i in diff])))
             [await self.play_sound(channel, person) for person in diff]
