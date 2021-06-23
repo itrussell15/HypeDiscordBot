@@ -46,6 +46,9 @@ class Client(discord.Client):
             diff = list(set(members) - set(self.previous_members)) + list(set(self.previous_members) - set(members))
             self.log.info("{} joined the voice chat".format(" ".join([i.name for i in diff])))
             [await self.play_sound(channel, person) for person in diff]
+        elif self.previous_size > current_size:
+            diff = list(set(members) - set(self.previous_members)) + list(set(self.previous_members) - set(members))
+            self.log.info("{} left the voice channel".format(" ".join([i.name for i in diff])))
         self.previous_members = self.get_channel_members()
         self.previous_size = len(self.previous_members)             
     
