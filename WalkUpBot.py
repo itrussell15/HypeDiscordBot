@@ -97,7 +97,7 @@ class Client(discord.Client):
                 if i.content_type == "audio/mpeg":
                     with open(os.getcwd() + "/data.json", "r") as f:
                         data = json.load(f)
-                    await i.save(os.getcwd() + "/sounds\\{}".format(i.filename))
+                    await i.save(os.getcwd() + "/sounds/{}".format(i.filename))
                     if msg.author.name in list(data.keys()):
                         data[msg.author.name]["intro"].append(i.filename)
                     else:
