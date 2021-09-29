@@ -16,15 +16,11 @@ class Client(discord.Client):
     async def on_ready(self):
         self.members = []
         print("RUNNING")
+        self.guild_channel = (1, 0)
         self.set_up_logging()
-        self.previous_members = self.get_channel_members()
-        self.previous_size = self.check_party_size()
-        self.my_background_task.start()
         self.guild_num = 0
     
     def set_up_logging(self):
-        # self.log = logging.getLogger('discord')
-        # self.log.setLevel(self.log.DEBUG)
         log_format = '%(asctime)s %(message)s'
         logging.basicConfig(filename='discord_log.log',
                             format = log_format,
@@ -33,32 +29,18 @@ class Client(discord.Client):
         logging.getLogger('discord').setLevel(logging.WARNING)
         self.log = logging.getLogger("DiscordBotLogger")
         self.log.info("Program started running")
-        self.log.info("Listening to {channel} in {guild}".format(guild = self.guilds[0].name, channel = self.guilds[0].voice_channels[0].name))
+        self.log.info("Listening to {channel} in {guild}".format(guild = self.guilds[self.guild_channel[0]].name, channel = self.guilds[self.guild_channel[0]].voice_channels[self.guild_channel[1]].name))
     
-    @tasks.loop(seconds=1) # task runs every 60 seconds
-    async def my_background_task(self):
-        channel = self.guilds[0].voice_channels[0]
-        # print(channel)
-        current_size = self.check_party_size()
-        # print("PARTY SIZE GREATER THAN BEFORE: {}".format(current_size > self.previous_size))
-        members = self.get_channel_members()
-        if current_size > self.previous_size:
-            
-            diff = list(set(members) - set(self.previous_members)) + list(set(self.previous_members) - set(members))
-            self.log.info("{} joined the voice chat".format(" ".join([i.name for i in diff])))
-            [await self.play_sound(channel, person) for person in diff]
-        elif self.previous_size > current_size:
-            diff = list(set(members) - set(self.previous_members)) + list(set(self.previous_members) - set(members))
-            self.log.info("{} left the voice channel".format(" ".join([i.name for i in diff])))
-        self.previous_members = self.get_channel_members()
-        self.previous_size = len(self.previous_members)             
-    
-    def get_channel_members(self):
-        channel = self.guilds[0].voice_channels[0]
-        return [i for i in channel.members if not i.bot]
-        
-    def check_party_size(self):
-        return len(self.get_channel_members())
+    async def on_voice_state_update(self, member, before, after):
+        if after.channel:
+                if before.channel == None and not after.channel.name == "afk" and not member.bot:
+                    print("{} joined channel".format(member.name))
+                    self.log.info("{} joined the voice chat".format(member.name))
+                    await self.play_sound(after.channel, member)
+        else:
+            if not member.bot:
+                print("{} left channel".format(member.name))
+                self.log.info("{} left the voice chat".format(member.name))
     
     def find_sound(self, name):
         with open("data.json", "r") as f:
