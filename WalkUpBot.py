@@ -6,7 +6,6 @@ Created on Sat May 22 13:47:33 2021
 @author: isaactrussell
 """
 
-
 import discord, time, sys, os, json, random
 import datetime, logging
 from discord.ext import tasks
@@ -14,7 +13,7 @@ from discord.ext import tasks
 class Client(discord.Client):
     
     async def on_ready(self):
-        self.members = []
+        self.party = {}
         print("RUNNING")
         self.guild_channel = (1, 0)
         self.set_up_logging()
@@ -31,16 +30,16 @@ class Client(discord.Client):
         self.log.info("Program started running")
         self.log.info("Listening to {channel} in {guild}".format(guild = self.guilds[self.guild_channel[0]].name, channel = self.guilds[self.guild_channel[0]].voice_channels[self.guild_channel[1]].name))
     
+    # Main function to check for when people join the party.
     async def on_voice_state_update(self, member, before, after):
         if after.channel:
                 if before.channel == None and not after.channel.name == "afk" and not member.bot:
                     print("{} joined channel".format(member.name))
-                    self.log.info("{} joined the voice chat".format(member.name))
                     await self.play_sound(after.channel, member)
         else:
             if not member.bot:
                 print("{} left channel".format(member.name))
-                self.log.info("{} left the voice chat".format(member.name))
+                self.log.info("{} left {} in {}".format(member.name, before.channel.name, before.channel.guild.name))
     
     def find_sound(self, name):
         with open("data.json", "r") as f:
@@ -62,7 +61,7 @@ class Client(discord.Client):
             sound = discord.FFmpegPCMAudio("sounds//" + member_sound, executable=execute)
             if self.user not in channel.members:
                 voice = await channel.connect()
-                self.log.info("{member} joined the party, {sound} is playing".format(member = member.name, sound = member_sound))
+                self.log.info("{member} joined {channel} in {guild}, {sound} is playing".format(member = member.name, sound = member_sound, channel = channel.name, guild = channel.guild.name))
                 voice.play(sound)
                 
                 while voice.is_playing():
