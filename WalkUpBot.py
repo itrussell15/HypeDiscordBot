@@ -33,12 +33,12 @@ class Client(discord.Client):
     # Main function to check for when people join the party.
     async def on_voice_state_update(self, member, before, after):
         if after.channel:
-                if before.channel == None and not after.channel.name == "afk" and not member.bot:
-                    print("{} joined channel".format(member.name))
-                    await self.play_sound(after.channel, member)
+            if before.channel == None and not after.channel.name == "afk" and not member.bot:
+                # print("{} joined {} in {}".format(member.name, after.channel.name, after.channel.guild.name))
+                await self.play_sound(after.channel, member)
         else:
             if not member.bot:
-                print("{} left channel".format(member.name))
+                # print("{} left {} in {}".format(member.name, before.channel.name, before.channel.guild.name))
                 self.log.info("{} left {} in {}".format(member.name, before.channel.name, before.channel.guild.name))
     
     def find_sound(self, name):
