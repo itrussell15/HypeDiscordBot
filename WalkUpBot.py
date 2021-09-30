@@ -15,7 +15,6 @@ class Client(discord.Client):
     async def on_ready(self):
         self.party = {i.name: {} for i in self.guilds}
         self.activity_fp = "activity.json"
-        print(self.party)
         print("RUNNING")
         self.set_up_logging()
     
@@ -47,7 +46,7 @@ class Client(discord.Client):
     async def on_voice_state_update(self, member, before, after):
         if after.channel:
             # TODO Add tracking for time spent in the server
-            if not after.channel.name == "afk" and not member.bot:
+            if before.channel != after.channel and not after.channel.name == "afk" and not member.bot:
                 self.party[after.channel.guild.name].update({member.name: datetime.datetime.now()})
                 # print("{} joined {} in {}".format(member.name, after.channel.name, after.channel.guild.name))
                 await self.play_sound(after.channel, member)
@@ -55,13 +54,14 @@ class Client(discord.Client):
             if not member.bot:
                 # print("{} left {} in {}".format(member.name, before.channel.name, before.channel.guild.name))
                 total = datetime.datetime.now() - self.party[before.channel.guild.name][member.name]
+                self.party[before.channel.guild.name].pop(member.name)
                 self.store_seconds(member.name, before.channel.guild.name, total)
                 self.log.info("{} left {} in {}".format(member.name, before.channel.name, before.channel.guild.name))
     
     def store_seconds(self, name, guild, total):
         with open(self.activity_fp, "r") as f:
             data = json.load(f)
-        data[guild][name] += total.seconds
+        data[guild][name] += total.total_seconds()
         with open(self.activity_fp, "w") as f:
             json.dump(data, f, indent = 2)
             
