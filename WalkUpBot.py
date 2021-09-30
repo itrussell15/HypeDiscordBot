@@ -13,11 +13,11 @@ from discord.ext import tasks
 class Client(discord.Client):
     
     async def on_ready(self):
-        self.party = {}
+        self.party = {i.name: {} for i in self.guilds}
+        self.activity_fp = "activity.json"
+        print(self.party)
         print("RUNNING")
-        self.guild_channel = (1, 0)
         self.set_up_logging()
-        self.guild_num = 0
     
     def set_up_logging(self):
         log_format = '%(asctime)s %(message)s'
@@ -25,22 +25,46 @@ class Client(discord.Client):
                             format = log_format,
                             filemode = "a",
                             level = logging.INFO)    
-        logging.getLogger('discord').setLevel(logging.WARNING)
+        # logging.getLogger('discord').setLevel(logging.WARNING)
         self.log = logging.getLogger("DiscordBotLogger")
         self.log.info("Program started running")
-        self.log.info("Listening to {channel} in {guild}".format(guild = self.guilds[self.guild_channel[0]].name, channel = self.guilds[self.guild_channel[0]].voice_channels[self.guild_channel[1]].name))
+        
+    # def create_activity_file(self):
+    #     activity = {}
+    #     for guild in self.guilds:
+    #         activity.update({guild.name: {}})
+    #         for member in guild.members:
+    #             if not member.bot:
+    #                 activity[guild.name].update({member.name: 0})
+    #     with open("activity.json", "w") as f:
+    #         json.dump(activity, f, indent = 2)
+    
+    # TODO Add party info to self.party on startup
+    def update_channel_info(self):
+        pass
     
     # Main function to check for when people join the party.
     async def on_voice_state_update(self, member, before, after):
         if after.channel:
-            if before.channel == None and not after.channel.name == "afk" and not member.bot:
+            # TODO Add tracking for time spent in the server
+            if not after.channel.name == "afk" and not member.bot:
+                self.party[after.channel.guild.name].update({member.name: datetime.datetime.now()})
                 # print("{} joined {} in {}".format(member.name, after.channel.name, after.channel.guild.name))
                 await self.play_sound(after.channel, member)
         else:
             if not member.bot:
                 # print("{} left {} in {}".format(member.name, before.channel.name, before.channel.guild.name))
+                total = datetime.datetime.now() - self.party[before.channel.guild.name][member.name]
+                self.store_seconds(member.name, before.channel.guild.name, total)
                 self.log.info("{} left {} in {}".format(member.name, before.channel.name, before.channel.guild.name))
     
+    def store_seconds(self, name, guild, total):
+        with open(self.activity_fp, "r") as f:
+            data = json.load(f)
+        data[guild][name] += total.seconds
+        with open(self.activity_fp, "w") as f:
+            json.dump(data, f, indent = 2)
+            
     def find_sound(self, name):
         with open("data.json", "r") as f:
             sounds = json.load(f)
@@ -101,3 +125,6 @@ intents.members = True
 intents.voice_states = True
 client = Client(intents = intents)
 client.run(token)
+
+# with open("activity.json", "a") as f:
+#     f.dump()
