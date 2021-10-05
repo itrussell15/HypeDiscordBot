@@ -28,15 +28,15 @@ class Client(discord.Client):
         self.log = logging.getLogger("DiscordBotLogger")
         self.log.info("Program started running")
         
-    # def create_activity_file(self):
-    #     activity = {}
-    #     for guild in self.guilds:
-    #         activity.update({guild.name: {}})
-    #         for member in guild.members:
-    #             if not member.bot:
-    #                 activity[guild.name].update({member.name: 0})
-    #     with open("activity.json", "w") as f:
-    #         json.dump(activity, f, indent = 2)
+        activity = {"start": datetime.datetime.now().strftime("%m\%d\%Y, %H:%M:%S")}
+        for guild in self.guilds:
+            activity.update({guild.name: {}})
+            for member in guild.members:
+                if not member.bot:
+                    activity[guild.name].update({member.name: 0})
+        with open(self.activity_fp, "w") as f:
+            json.dump(activity, f, indent = 2)
+        
     
     # TODO Add party info to self.party on startup
     def update_channel_info(self):
