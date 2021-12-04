@@ -43,7 +43,7 @@ class Client(discord.Client):
     def find_sound(self, name):
         with open("data.json", "r") as f:
             sounds = json.load(f)
-        if name not in list(sounds.keys()):
+        if name not in list(sounds.keys()) or not sounds[name]:
             out = None
         else:
             choice = random.randint(0, len(sounds[name]["intro"])-1 )
@@ -77,7 +77,7 @@ class Client(discord.Client):
                 if i.content_type == "audio/mpeg":
                     with open(os.getcwd() + "/data.json", "r") as f:
                         data = json.load(f)
-                    await i.save(os.getcwd() + "/sounds\\{}".format(i.filename))
+                    await i.save(os.getcwd() + "/sounds/{}".format(i.filename))
                     if msg.author.name in list(data.keys()):
                         data[msg.author.name]["intro"].append(i.filename)
                     else:
