@@ -45,13 +45,6 @@ class Client(discord.Client):
         if after.channel:
                 if before.channel == None and not after.channel.name == 'afk' and not member.bot:
                     await self.play_sound(after.channel, member)
-        else:
-            if not member.bot:
-                # print("{} left {} in {}".format(member.name, before.channel.name, before.channel.guild.name))
-                total = datetime.datetime.now() - self.party[before.channel.guild.name][member.name]
-                self.party[before.channel.guild.name].pop(member.name)
-                self.store_seconds(member.name, before.channel.guild.name, total)
-                self.log.info("{} left {} in {}".format(member.name, before.channel.name, before.channel.guild.name))
     
     def store_seconds(self, name, guild, total):
         with open(self.activity_fp, "r") as f:
