@@ -5,4 +5,9 @@ ffmpeg_mac
 discord_log.log
 ffmpeg
 run_log.log
+<<<<<<< HEAD
 activity.json
+=======
+__pycache__/
+sounds/
+>>>>>>> feature/Event_CallBack

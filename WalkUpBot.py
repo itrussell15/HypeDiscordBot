@@ -10,6 +10,8 @@ import discord, time, sys, os, json, random
 import datetime, logging
 from discord.ext import tasks
 
+from MessageHandlers import message_has_attachments, list_sounds, delete_sound
+
 class Client(discord.Client):
     
     async def on_ready(self):
@@ -38,18 +40,11 @@ class Client(discord.Client):
             json.dump(activity, f, indent = 2)
         
     
-    # TODO Add party info to self.party on startup
-    def update_channel_info(self):
-        pass
-    
     # Main function to check for when people join the party.
     async def on_voice_state_update(self, member, before, after):
         if after.channel:
-            # TODO Add tracking for time spent in the server
-            if before.channel != after.channel and not after.channel.name == "afk" and not member.bot:
-                self.party[after.channel.guild.name].update({member.name: datetime.datetime.now()})
-                # print("{} joined {} in {}".format(member.name, after.channel.name, after.channel.guild.name))
-                await self.play_sound(after.channel, member)
+                if before.channel == None and not after.channel.name == 'afk' and not member.bot:
+                    await self.play_sound(after.channel, member)
         else:
             if not member.bot:
                 # print("{} left {} in {}".format(member.name, before.channel.name, before.channel.guild.name))
@@ -68,7 +63,7 @@ class Client(discord.Client):
     def find_sound(self, name):
         with open("data.json", "r") as f:
             sounds = json.load(f)
-        if name not in list(sounds.keys()):
+        if name not in list(sounds.keys()) or not sounds[name]:
             out = None
         else:
             choice = random.randint(0, len(sounds[name]["intro"])-1 )
@@ -90,30 +85,39 @@ class Client(discord.Client):
                 
                 while voice.is_playing():
                     time.sleep(0.2)
-                await voice.disconnect()     
+                await voice.disconnect()
+    
+    def format_message(self, sounds):
+        if sounds:
+            out = "**Your sounds are:**\n" + "\n".join(["{}- {}".format(n + 1, i) for n, i in enumerate(sounds)])
+        else:
+            out = "**You have no sounds!**"
+        return out
+            
     
     async def on_message(self, msg):
         
         if msg.author == client.user:
             return
-        
+
         if len(msg.attachments) >= 1 and msg.channel.type == discord.ChannelType.private:
-            for i in msg.attachments:
-                if i.content_type == "audio/mpeg":
-                    with open(os.getcwd() + "/data.json", "r") as f:
-                        data = json.load(f)
-                    await i.save(os.getcwd() + "/sounds\\{}".format(i.filename))
-                    if msg.author.name in list(data.keys()):
-                        data[msg.author.name]["intro"].append(i.filename)
-                    else:
-                        data.update({msg.author.name: {"intro": [i.filename]}})
-                    with open("data.json", "w") as f:
-                        json.dump(data, f, indent = 2)
-                    await msg.author.dm_channel.send("{} was added to your sounds!".format(i.filename))
-                    guilds = ", ".join(i.name for i in msg.author.mutual_guilds)
-                    self.log.info("{member} in {guilds} added {sound} to to their sounds!"
-                                  .format(member = msg.author, sound = i.filename, guilds = guilds))
-                    
+            print("Message has attachments!")
+            await message_has_attachments(msg.attachments, msg.author.name)
+            sounds = list_sounds(msg.author.name)
+            out = self.format_message(sounds)
+            await msg.author.dm_channel.send(out)
+            
+        elif msg.content == "list" and msg.channel.type == discord.ChannelType.private:
+            print("List sounds for {}".format(msg.author))
+            sounds = list_sounds(msg.author.name)
+            out = self.format_message(sounds)
+            await msg.author.dm_channel.send(out)
+            
+        elif msg.content.startswith("delete"):
+            sounds = delete_sound(msg.author.name, msg.content)
+            out = self.format_message(sounds)
+            await msg.author.dm_channel.send(out)
+            
 def load_token():
     with open("Secrets.txt", "r") as f:
         file = f.readlines()[0]
