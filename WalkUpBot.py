@@ -10,6 +10,8 @@ import discord, time, sys, os, json, random
 import datetime, logging
 from discord.ext import tasks
 
+from MessageHandlers import message_has_attachments, list_sounds, delete_sound
+
 class Client(discord.Client):
     
     async def on_ready(self):
@@ -65,30 +67,39 @@ class Client(discord.Client):
                 
                 while voice.is_playing():
                     time.sleep(0.2)
-                await voice.disconnect()     
+                await voice.disconnect()
+    
+    def format_message(self, sounds):
+        if sounds:
+            out = "**Your sounds are:**\n" + "\n".join(["{}- {}".format(n + 1, i) for n, i in enumerate(sounds)])
+        else:
+            out = "**You have no sounds!**"
+        return out
+            
     
     async def on_message(self, msg):
         
         if msg.author == client.user:
             return
-        
+
         if len(msg.attachments) >= 1 and msg.channel.type == discord.ChannelType.private:
-            for i in msg.attachments:
-                if i.content_type == "audio/mpeg":
-                    with open(os.getcwd() + "/data.json", "r") as f:
-                        data = json.load(f)
-                    await i.save(os.getcwd() + "/sounds/{}".format(i.filename))
-                    if msg.author.name in list(data.keys()):
-                        data[msg.author.name]["intro"].append(i.filename)
-                    else:
-                        data.update({msg.author.name: {"intro": [i.filename]}})
-                    with open("data.json", "w") as f:
-                        json.dump(data, f, indent = 2)
-                    await msg.author.dm_channel.send("{} was added to your sounds!".format(i.filename))
-                    guilds = ", ".join(i.name for i in msg.author.mutual_guilds)
-                    self.log.info("{member} in {guilds} added {sound} to to their sounds!"
-                                  .format(member = msg.author, sound = i.filename, guilds = guilds))
-                    
+            print("Message has attachments!")
+            await message_has_attachments(msg.attachments, msg.author.name)
+            sounds = list_sounds(msg.author.name)
+            out = self.format_message(sounds)
+            await msg.author.dm_channel.send(out)
+            
+        elif msg.content == "list" and msg.channel.type == discord.ChannelType.private:
+            print("List sounds for {}".format(msg.author))
+            sounds = list_sounds(msg.author.name)
+            out = self.format_message(sounds)
+            await msg.author.dm_channel.send(out)
+            
+        elif msg.content.startswith("delete"):
+            sounds = delete_sound(msg.author.name, msg.content)
+            out = self.format_message(sounds)
+            await msg.author.dm_channel.send(out)
+            
 def load_token():
     with open("Secrets.txt", "r") as f:
         file = f.readlines()[0]
