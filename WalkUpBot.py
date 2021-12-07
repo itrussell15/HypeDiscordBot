@@ -47,7 +47,7 @@ class Client(discord.Client):
     async def on_voice_state_update(self, member, before, after):
         if after.channel:
                 if before.channel == None and not after.channel.name == 'afk' and not member.bot:
-                    await self.play_sound(after.channel, member)
+                    await play_sound(after.channel, member, self.user, self.log)
             
     # def find_sound(self, name):
     #     with open("data.json", "r") as f:
