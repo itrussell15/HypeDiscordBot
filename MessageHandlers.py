@@ -5,7 +5,8 @@ Created on Sat Dec  4 00:08:46 2021
 @author: Schmuck
 """
 
-import os, json
+import os
+from FileHandlers import load_data, save_data, remove_sound_file
 
 async def message_has_attachments(attachments, user):
     for i in attachments:
@@ -25,16 +26,6 @@ def list_sounds(user):
     else:
         return None
 
-def save_data(data):
-    with open("data.json", "w") as f:
-        out = json.dump(data, f, indent = 2)
-    return out
-
-def load_data():
-    with open(os.getcwd() + "/data.json") as f:
-        data = json.load(f)
-    return data
-
 def delete_sound(user, selection):
     split_content = selection.split(" ")
     selection = split_content[-1]
@@ -45,7 +36,7 @@ def delete_sound(user, selection):
         if sounds:
             selection = int(selection)
             if selection >= 1 and selection <= len(sounds) + 1:
-                # print(sounds[selection - 1])
+                remove_sound_file(sounds[selection - 1])
                 sounds.pop(selection - 1)
                 data[user]["intro"] = sounds
                 save_data(data)
@@ -54,3 +45,10 @@ def delete_sound(user, selection):
                 print("Invalid Input")
     else:
         print("Invalid Input")
+        
+def format_message(sounds):
+    if sounds:
+        out = "**Your sounds are:**\n" + "\n".join(["{}- {}".format(n + 1, i) for n, i in enumerate(sounds)])
+    else:
+        out = "**You have no sounds!**"
+    return out
