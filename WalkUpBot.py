@@ -29,7 +29,6 @@ class Client(discord.Client):
                             format = log_format,
                             filemode = "a",
                             level = logging.INFO)    
-        # logging.getLogger('discord').setLevel(logging.WARNING)
         self.log = logging.getLogger("DiscordBotLogger")
         self.log.info("Program started running")
         
@@ -47,36 +46,7 @@ class Client(discord.Client):
     async def on_voice_state_update(self, member, before, after):
         if after.channel:
                 if before.channel == None and not after.channel.name == 'afk' and not member.bot:
-                    await play_sound(after.channel, member, self.user, self.log)
-            
-    # def find_sound(self, name):
-    #     with open("data.json", "r") as f:
-    #         sounds = json.load(f)
-    #     if name not in list(sounds.keys()) or not sounds[name]:
-    #         out = None
-    #     else:
-    #         choice = random.randint(0, len(sounds[name]["intro"])-1 )
-    #         out = sounds[name]["intro"][choice]
-    #     return out
-        
-    # async def play_sound(self, channel, member):
-    #     if sys.platform == "darwin":
-    #         execute = os.getcwd() + "//" + os.listdir()[0]
-    #     else:
-    #         execute = "ffmpeg"
-    #     member_sound = self.find_sound(member.name)        
-    #     if member_sound != None:
-    #         sound = discord.FFmpegPCMAudio("sounds//" + member_sound, executable=execute)
-    #         if self.user not in channel.members:
-    #             voice = await channel.connect()
-    #             self.log.info("{member} joined {channel} in {guild}, {sound} is playing".format(member = member.name, sound = member_sound, channel = channel.name, guild = channel.guild.name))
-    #             voice.play(sound)
-                
-    #             while voice.is_playing():
-    #                 time.sleep(0.2)
-    #             await voice.disconnect()
-
-            
+                    await play_sound(after.channel, member, self.user, self.log)            
     
     async def on_message(self, msg):
         
