@@ -5,3 +5,4 @@ ffmpeg_mac
 discord_log.log
 ffmpeg
 run_log.log
+__pycache__/
