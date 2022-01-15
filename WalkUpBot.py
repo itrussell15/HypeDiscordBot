@@ -73,7 +73,7 @@ class Client(discord.Client):
             await msg.author.dm_channel.send(out)
 
 def load_token():
-    with open("Secret.txt", "r") as f:
+    with open("Secrets.txt", "r") as f:
         file = f.readlines()[0]
     return file
 
