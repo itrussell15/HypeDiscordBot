@@ -16,23 +16,23 @@ from MessageHandlers import format_message
 from SoundHandlers import play_sound
 
 class Client(discord.Client):
-    
+
     async def on_ready(self):
         self.party = {i.name: {} for i in self.guilds}
         self.activity_fp = "activity.json"
         print("RUNNING")
         self.set_up_logging()
-    
+
     def set_up_logging(self):
         log_format = '%(asctime)s %(message)s'
         logging.basicConfig(filename='discord_log.log',
                             format = log_format,
                             filemode = "a",
-                            level = logging.INFO)    
+                            level = logging.INFO)
         # logging.getLogger('discord').setLevel(logging.WARNING)
         self.log = logging.getLogger("DiscordBotLogger")
         self.log.info("Program started running")
-        
+
         activity = {"start": datetime.datetime.now().strftime("%m\%d\%Y, %H:%M:%S")}
         for guild in self.guilds:
             activity.update({guild.name: {}})
@@ -41,16 +41,16 @@ class Client(discord.Client):
                     activity[guild.name].update({member.name: 0})
         with open(self.activity_fp, "w") as f:
             json.dump(activity, f, indent = 2)
-        
-    
+
+
     # Main function to check for when people join the party.
     async def on_voice_state_update(self, member, before, after):
         if after.channel:
                 if before.channel == None and not after.channel.name == 'afk' and not member.bot:
-                    await play_sound(after.channel, member, self.user, self.log)            
-    
+                    await play_sound(after.channel, member, self.user, self.log)
+
     async def on_message(self, msg):
-        
+
         if msg.author == client.user:
             return
 
@@ -60,20 +60,20 @@ class Client(discord.Client):
             sounds = list_sounds(msg.author.name)
             out = format_message(sounds)
             await msg.author.dm_channel.send(out)
-            
+
         elif msg.content == "list" and msg.channel.type == discord.ChannelType.private:
             print("List sounds for {}".format(msg.author))
             sounds = list_sounds(msg.author.name)
             out = format_message(sounds)
             await msg.author.dm_channel.send(out)
-            
+
         elif msg.content.startswith("delete"):
             sounds = delete_sound(msg.author.name, msg.content)
             out = format_message(sounds)
             await msg.author.dm_channel.send(out)
-            
+
 def load_token():
-    with open("Secrets.txt", "r") as f:
+    with open("Secret.txt", "r") as f:
         file = f.readlines()[0]
     return file
 
