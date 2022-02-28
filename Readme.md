@@ -4,6 +4,12 @@
 
 This bots purpose is to play a sounds in the voice channel whenever a user joins the party.
 
+## Install
+
+###Docker
+Since the dependency ffmpeg needs user input during the install process, you have to run ```apt-get install -y ffmpeg``` and follow the 2 prompts via the commandline after the container has been launched.
+
+
 ##  How to use
 
 Simply join a party and the bot will automatically join and leave whenever the sound has been played.

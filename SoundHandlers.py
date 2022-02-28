@@ -23,7 +23,7 @@ async def play_sound(channel, member, bot, log):
             execute = os.getcwd() + "//" + os.listdir()[0]
         else:
             execute = "ffmpeg"
-        member_sound = _find_sound(member.name)   
+        member_sound = _find_sound(member.name)
         if member_sound != None:
             sound = discord.FFmpegPCMAudio("sounds//" + member_sound)
             if bot not in channel.members:
