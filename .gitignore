@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Secrets.txt
 ffmpeg.exe
 ._ffmpeg_mac
@@ -11,3 +12,12 @@ activity.json
 __pycache__/
 sounds/
 >>>>>>> feature/Event_CallBack
+=======
+ffmpeg.exe
+._ffmpeg_mac
+ffmpeg_mac
+discord_log.log
+ffmpeg
+run_log.log
+__pycache__/
+>>>>>>> feature/pycord-migrate
