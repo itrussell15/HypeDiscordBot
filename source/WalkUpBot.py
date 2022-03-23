@@ -42,8 +42,8 @@ class Client(discord.Client):
         with open(self.activity_fp, "w") as f:
             json.dump(activity, f, indent = 2)
 
-
     # Main function to check for when people join the party.
+    # TODO update to only work with multiple people in the party
     async def on_voice_state_update(self, member, before, after):
         if after.channel:
                 if before.channel == None and not after.channel.name == 'afk' and not member.bot:
