@@ -6,17 +6,17 @@ Created on Sat Dec  4 00:08:46 2021
 """
 
 import os
-from FileHandlers import load_data, save_data, remove_sound_file
+from FileHandlers import load_data, save_data, remove_sound_file, getParentDir
 
 async def message_has_attachments(attachments, user):
     for i in attachments:
         if i.content_type == "audio/mpeg":
             data = load_data()
-            await i.save(os.getcwd() + "/sounds/{}".format(i.filename))
+            await i.save("sounds/{}".format(i.filename))
             if user in list(data.keys()):
                 data[user]["intro"].append(i.filename)
             else:
-                data.update({user: {"intro": [i.filename]}}) 
+                data.update({user: {"intro": [i.filename]}})
     save_data(data)
 
 def list_sounds(user):
@@ -29,7 +29,7 @@ def list_sounds(user):
 def delete_sound(user, selection):
     split_content = selection.split(" ")
     selection = split_content[-1]
-    
+
     if len(split_content) == 2 and selection.isdigit():
         data = load_data()
         sounds = data[user]["intro"]
@@ -45,7 +45,7 @@ def delete_sound(user, selection):
                 print("Invalid Input")
     else:
         print("Invalid Input")
-        
+
 def format_message(sounds):
     if sounds:
         out = "**Your sounds are:**\n" + "\n".join(["{}- {}".format(n + 1, i) for n, i in enumerate(sounds)])

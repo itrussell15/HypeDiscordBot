@@ -19,5 +19,4 @@ COPY . .
 
 ENTRYPOINT [ "python3" ]
 
-CMD ["HelloWorld.py"]
-#CMD ["WalkUpBot.py"]
+CMD ["source/WalkUpBot.py"]

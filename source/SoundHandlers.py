@@ -17,7 +17,7 @@ def _find_sound(name):
         else:
             choice = random.randint(0, len(sounds[name]["intro"])-1 )
             sound_file = sounds[name]["intro"][choice]
-            out = getParentDir(os.getcwd()) + "/sounds/{}".format(sound_file)
+            out = "sounds/{}".format(sound_file)
         return out
 
 async def play_sound(channel, member, bot, log):
